@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 
 public class ProjectileTurret : MonoBehaviour
@@ -21,7 +22,7 @@ public class ProjectileTurret : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        //I tried for hours to get this one working & didn't get anywhere
     }
 
     // Update is called once per frame
@@ -30,6 +31,7 @@ public class ProjectileTurret : MonoBehaviour
         TrackMouse();
         TurnBase();
         RotateGun();
+        
 
         if (Input.GetButtonDown("Fire1"))
             Fire();
@@ -65,7 +67,7 @@ public class ProjectileTurret : MonoBehaviour
     {
         float? angle = CalculateTrajectory(crosshair.transform.position, useLowAngle);
         if (angle != null)
-            gun.transform.localEulerAngles = new Vector3(360f - (float)angle, 0, 0);
+            gun.transform.localEulerAngles = new Vector3(360 - (float)angle, 0, 0);
     }
 
     float? CalculateTrajectory(Vector3 target, bool useLow)

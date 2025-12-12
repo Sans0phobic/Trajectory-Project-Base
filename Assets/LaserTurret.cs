@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.VersionControl;
 using UnityEngine;
 
 public class LaserTurret : MonoBehaviour
@@ -13,11 +14,12 @@ public class LaserTurret : MonoBehaviour
     [SerializeField] LineRenderer line;
 
     List<Vector3> laserPoints = new List<Vector3>();
+    int bounceMax = 20;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -29,15 +31,31 @@ public class LaserTurret : MonoBehaviour
         laserPoints.Clear();
         laserPoints.Add(barrelEnd.position);
 
-        if(Physics.Raycast(barrelEnd.position, barrelEnd.forward, out RaycastHit hit, 1000.0f, targetLayer))
+        Vector3 direction = barrelEnd.forward;
+        Vector3 basePos = barrelEnd.position;
+
+        for (int x = 0; x < bounceMax; x++)
         {
-            laserPoints.Add(hit.point);
+            if (Physics.Raycast(basePos, direction, out RaycastHit hit, 1000.0f, targetLayer))
+            {
+                laserPoints.Add(hit.point);
+                Vector3 hitNormal = hit.normal.normalized;
+                Vector3 projection = Vector3.Dot(direction, hitNormal) * hitNormal;
+
+                direction = (direction - 2.0f * projection).normalized;
+                basePos = hit.point + direction * 0.01f;
+            }
+            else
+            {
+                laserPoints.Add(basePos + direction * 2500f);
+                break;
+            }
         }
 
         line.positionCount = laserPoints.Count;
-        for(int i = 0; i < line.positionCount; i++)
+        for (int y = 0; y < line.positionCount; y++)
         {
-            line.SetPosition(i, laserPoints[i]);
+            line.SetPosition(y, laserPoints[y]);
         }
     }
 
@@ -46,7 +64,7 @@ public class LaserTurret : MonoBehaviour
         Ray cameraRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         RaycastHit hit;
-        if(Physics.Raycast(cameraRay, out hit, 1000, targetLayer ))
+        if (Physics.Raycast(cameraRay, out hit, 1000, targetLayer))
         {
             crosshair.transform.forward = hit.normal;
             crosshair.transform.position = hit.point + hit.normal * 0.1f;
